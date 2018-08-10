@@ -3,7 +3,7 @@ const fs = require('fs')
 const { isDirectory, isExists, isImage } = require('./util')
 module.exports = (dir, ctxPath) => {
   const backUrl = path.join(ctxPath, '../')
-  let html = `<div class="picture"><a href="${backUrl}">返回上级</a></div>`
+  let html = `<div class="picture"><a href="${backUrl}">Back←</a></div>`
 
   const items = fs.readdirSync(dir)
 
