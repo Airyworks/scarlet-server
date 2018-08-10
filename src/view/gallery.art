@@ -1,12 +1,4 @@
-module.exports = roots => {
-  let html = ''
-
-  for (const i in roots) {
-    html += `<div class="picture"><a href="${i}/">${roots[i]}</a></div>`
-  }
-
-  return `
-  <!DOCTYPE html>
+<!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -15,7 +7,15 @@ module.exports = roots => {
     <title>scarlet internal server</title>
   </head>
   <body>
-    <div id="gallery">${html}</div>
+    <div id="gallery">
+    <div class="picture"><a href="{{backUrl}}">Back←</a></div>
+    {{each dirs}}
+      <div class="picture"><a href="{{$value['href']}}">{{$value['html']}}</a></div>
+    {{/each}}
+    {{each images}}
+      <div class="picture"><img src="{{$value.src}}"></img></div>
+    {{/each}}
+    </div>
   </body>
   <style>
     #gallery {
@@ -33,5 +33,3 @@ module.exports = roots => {
     }
   </style>
   </html>
-`
-}

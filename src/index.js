@@ -24,7 +24,7 @@ exports.server = new class {
       })
       this.child.on('message', msg => {
         if (msg.message === 'on-error') {
-          this.cb.apply(this, ...msg.data)
+          this.onError(...msg.data)
         }
       })
     }

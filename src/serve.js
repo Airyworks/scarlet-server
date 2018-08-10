@@ -2,10 +2,9 @@ const koa = require('koa')
 const route = require('koa-path-match')()
 const path = require('path')
 const send = require('koa-send')
+const render = require('koa-art-template')
 
-const { isDirectory, isExists, isImage } = require('./util')
-const html = require('./html')
-const indexHtml = require('./index.html')
+const { isDirectory, isExists, getDirs, getImages } = require('./util')
 
 let app = null
 let server = null
@@ -20,8 +19,17 @@ process.on('message', msg => {
       const port = msg.data.port
 
       app = new koa()
+
+      render(app, {
+        root: path.join(__dirname, 'view'),
+        extname: '.art',
+        debug: process.env.NODE_ENV !== 'production'
+      })
+
       app.use(route('/').get(async (ctx, next) => {
-        ctx.body = indexHtml(roots)
+        ctx.render('index', {
+          roots
+        })
         return
       }))
 
@@ -38,17 +46,21 @@ process.on('message', msg => {
         const relativePath = '/' + ctx.params.path.join('/')
         const absolutePath = path.join(root, relativePath)
         if (isExists(absolutePath) && isDirectory(absolutePath)) {
-          ctx.body = html(absolutePath, ctx.path)
+          ctx.render('gallery', {
+            backUrl: path.posix.join(ctx.path, '../'),
+            dirs: getDirs(absolutePath, ctx.path),
+            images: getImages(absolutePath, ctx.path)
+          })
         }
 
         await send(ctx, relativePath, { root })
         return
       }))
 
-      app.onerror = (...args) => {
+      app.onerror = (err, ctx) => {
         process.send({
           message: 'on-error',
-          data: args
+          data: [err.toString(), ctx]
         })
       }
 
